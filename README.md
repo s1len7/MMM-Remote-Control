@@ -67,7 +67,8 @@ Add the module to the `modules` array in your `config.js`. Set a `position` to d
         // showNotificationMenu: false, // Disable the Notification menu
         // showQRCode: true, // Display a QR code for mobile access (default: true)
         // qrCodeSize: 150, // QR code size in pixels (default: 150)
-        // qrCodePosition: "above" // "below", "above" (default), or "replace"
+        // qrCodePosition: "above", // "below", "above" (default), or "replace"
+        // useHostname: false, // Show the mDNS hostname (e.g. "mirror.local") instead of the IP address (default: false)
       }
     },
 ```
