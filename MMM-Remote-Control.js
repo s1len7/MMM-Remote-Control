@@ -85,7 +85,7 @@ Module.register('MMM-Remote-Control', {
 
       case 'IP_ADDRESSES':
         // A different address changes the URL, so the QR code has to be generated again
-        if (payload.join() !== this.addresses.join()) {
+        if (payload.join(',') !== this.addresses.join(',')) {
           this.qrCodeDataUrl = null
         }
         this.addresses = payload
@@ -331,7 +331,7 @@ Module.register('MMM-Remote-Control', {
       }
 
       // Request QR code generation if not already done (not for the placeholder before the address is known)
-      if (!this.qrCodeDataUrl && hasAddress) {
+      if (hasAddress && !this.qrCodeDataUrl) {
         this.sendSocketNotification('GENERATE_QR_CODE', {
           url,
           size: this.config.qrCodeSize,

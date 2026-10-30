@@ -1114,6 +1114,16 @@ module.exports = NodeHelper.create({
   },
 
   /**
+   * Send the current ip addresses (or their hostnames if requested) to the frontend
+   * @param {boolean} useHostname - Whether to resolve the addresses to mDNS hostnames
+   * @returns {Promise<void>}
+   */
+  async sendIpAddresses(useHostname) {
+    const addresses = this.getIpAddresses()
+    this.sendSocketNotification('IP_ADDRESSES', useHostname ? await this.getHostnames(addresses) : addresses)
+  },
+
+  /**
    * Look up the mDNS hostname of each address, keeping the address when there is no answer
    * @param {string[]} addresses - IPv4 addresses
    * @returns {Promise<string[]>} Hostnames (e.g. "mirror.local") or the original addresses
@@ -1139,11 +1149,11 @@ module.exports = NodeHelper.create({
         return
       }
 
-      const name = `${address.split('.').reverse().join('.')}.in-addr.arpa`
-      let done = false
+      const name = `${address.split('.').toReversed().join('.')}.in-addr.arpa`
+      let isDone = false
       const finish = (hostname) => {
-        if (done) return
-        done = true
+        if (isDone) return
+        isDone = true
         clearTimeout(timer)
         mdns.destroy()
         resolve(hostname)
@@ -1185,14 +1195,7 @@ module.exports = NodeHelper.create({
         break
       case 'REQUEST_DEFAULT_SETTINGS':
       // module started, answer with current ip addresses (or their hostnames if requested)
-        if (payload?.useHostname) {
-          this.getHostnames(this.getIpAddresses()).then((hostnames) => {
-            this.sendSocketNotification('IP_ADDRESSES', hostnames)
-          })
-        }
-        else {
-          this.sendSocketNotification('IP_ADDRESSES', this.getIpAddresses())
-        }
+        this.sendIpAddresses(payload?.useHostname)
         this.sendSocketNotification('LOAD_PORT', this.configOnHd.port || '')
         // check if we have got saved default settings
         this.loadDefaultSettings()
